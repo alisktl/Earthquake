@@ -5,16 +5,21 @@ import android.content.Context;
 import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.ru.alisher.earthquake.earthquake.data.Earthquake;
+import com.ru.alisher.earthquake.earthquake.helper.Helper;
 
 import java.util.List;
 
@@ -22,6 +27,7 @@ public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<List<Earthquake>> {
 
     private static final String LOG_TAG = MainActivity.class.getName();
+    private static final String USGS_URL_API_RESOURCE_KEY = "usgs_api_url";
 
     private static final int ID_EARTHQUAKE_LOADER = 1;
 
@@ -31,8 +37,6 @@ public class MainActivity extends AppCompatActivity
 
     private ProgressBar mLoadingIndicator;
 
-    private int mPosition = RecyclerView.NO_POSITION;
-
     // TextView that is displayed when the list is empty
     private TextView mEmptyStateTextView;
 
@@ -40,6 +44,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.v(LOG_TAG, "onCreate");
 
         mEarthquakesRecyclerView = findViewById(R.id.recyclerview_earthquakes);
 
@@ -73,7 +79,6 @@ public class MainActivity extends AppCompatActivity
         mEarthquakesRecyclerView.setHasFixedSize(true);
 
         mEarthquakeAdapter = new EarthquakeAdapter(this);
-
         mEarthquakesRecyclerView.setAdapter(mEarthquakeAdapter);
 
         showLoading();
@@ -86,11 +91,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public Loader<List<Earthquake>> onCreateLoader(int loaderId, Bundle bundle) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_reload) {
+            showLoading();
+
+            // Scrolling up
+            mEarthquakesRecyclerView.scrollToPosition(0);
+
+            if (isDeviceConnectedToNetwork()) {
+                getLoaderManager().restartLoader(ID_EARTHQUAKE_LOADER, null, this);
+            } else {
+                showEmptyStateView(getString(R.string.no_internet_connection));
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<List<Earthquake>> onCreateLoader(int loaderId, Bundle bundle) {
+        Log.v(LOG_TAG, "onCreateLoader");
         switch (loaderId) {
             case ID_EARTHQUAKE_LOADER:
-                return new EarthquakeLoader(this);
+                String usgsApiUrl = Helper.getConfigValue(this, USGS_URL_API_RESOURCE_KEY);
+
+                Uri baseUri = Uri.parse(usgsApiUrl);
+                Uri.Builder uriBuilder = baseUri.buildUpon();
+
+                uriBuilder.appendQueryParameter("format", "geojson");
+                uriBuilder.appendQueryParameter("limit", "1000");
+                uriBuilder.appendQueryParameter("minmag", "1");
+                uriBuilder.appendQueryParameter("orderby", "magnitude");
+
+                return new EarthquakeLoader(this, uriBuilder.toString());
             default:
                 throw new RuntimeException("Loader Not Implemented: " + loaderId);
         }
@@ -98,19 +138,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+        Log.v(LOG_TAG, "onLoadFinished");
         mEarthquakeAdapter.swapEarthquakes(earthquakes);
-        if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
 
-        mEarthquakesRecyclerView.smoothScrollToPosition(mPosition);
-        if (earthquakes.size() != 0)
+        if (earthquakes != null && earthquakes.size() != 0)
             showEarthquakeDataView();
         else
             showEmptyStateView(getString(R.string.no_earthquakes));
-
     }
 
     @Override
     public void onLoaderReset(Loader<List<Earthquake>> loader) {
+        Log.v(LOG_TAG, "onLoaderReset");
         /*
          * Since this Loader's data is now invalid, we need to clear the Adapter that is
          * displaying the data.

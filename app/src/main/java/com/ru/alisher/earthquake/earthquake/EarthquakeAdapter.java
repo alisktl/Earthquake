@@ -10,7 +10,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ru.alisher.earthquake.earthquake.data.Earthquake;
+import com.ru.alisher.earthquake.earthquake.helper.Helper;
 
+import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,7 +34,7 @@ public class EarthquakeAdapter extends RecyclerView.Adapter<EarthquakeAdapter.Ea
      *
      * @param context Used to talk to the UI and app resources
      */
-    public EarthquakeAdapter(@NonNull Context context) {
+    EarthquakeAdapter(@NonNull Context context) {
         mContext = context;
     }
 
@@ -59,14 +62,11 @@ public class EarthquakeAdapter extends RecyclerView.Adapter<EarthquakeAdapter.Ea
     public void onBindViewHolder(EarthquakeAdapterViewHolder earthquakeAdapterViewHolder, int position) {
         Earthquake earthquakeToShow = earthquakes.get(position);
 
-        earthquakeAdapterViewHolder.magnitude.setText("7.5");
+        Date dateObject = new Date(earthquakeToShow.getTimeInMilliseconds());
 
-        earthquakeAdapterViewHolder.time.setText("3PM (2 hrs ago)");
-
-        if (position == 0)
-            earthquakeAdapterViewHolder.location.setText("Kazakhstan Kazakhstan Kazakhstan Kazakhstan Kazakhstan Kazakhstan Kazakhstan Kazakhstan, Almaty");
-        else
-            earthquakeAdapterViewHolder.location.setText("Kazakhstan, Almaty");
+        earthquakeAdapterViewHolder.magnitude.setText(formatMagnitude(earthquakeToShow.getMagnitude()));
+        earthquakeAdapterViewHolder.time.setText(Helper.formatTime(dateObject) + ", " + Helper.formatDate(dateObject));
+        earthquakeAdapterViewHolder.location.setText(earthquakeToShow.getLocation());
     }
 
     /**
@@ -91,6 +91,15 @@ public class EarthquakeAdapter extends RecyclerView.Adapter<EarthquakeAdapter.Ea
     void swapEarthquakes(List<Earthquake> earthquakes) {
         this.earthquakes = earthquakes;
         notifyDataSetChanged();
+    }
+
+    /**
+     * Return the formatted magnitude string showing 1 decimal place (i.e. "3.2")
+     * from a decimal magnitude value.
+     */
+    private String formatMagnitude(double magnitude) {
+        DecimalFormat magnitudeFormat = new DecimalFormat("0.0");
+        return magnitudeFormat.format(magnitude);
     }
 
     /**

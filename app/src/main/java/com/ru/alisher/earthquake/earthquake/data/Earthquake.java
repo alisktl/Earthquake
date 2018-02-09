@@ -19,10 +19,10 @@ public class Earthquake {
     private String mAlertLevel;
 
     // Latitude of the earthquake
-    private String mLat;
+    private double mLat;
 
     // Longitude of the earthquake
-    private String mLon;
+    private double mLon;
 
     // Location (name of the place) of the earthquake
     private String mLocation;
@@ -36,14 +36,12 @@ public class Earthquake {
     // URL of the detailed information of the earthquake
     private String mDetailUrl;
 
-    private String alert;
-
     /**
      *
      * @param id is the id of the earthquake
      * @param magnitude is the magnitude of the earthquake
      * @param mercalliIntensityScale is the Mercalli Intensity Scale of the earthquake
-     * @param alertLevel is the Alert Level of the earthquake
+     * @param alertLevel is the alert level of the earthquake
      * @param lat is the latitude of the earthquake
      * @param lon is the longitude of the earthquake
      * @param location is the location of the earthquake
@@ -51,8 +49,8 @@ public class Earthquake {
      * @param timeInMilliseconds is the time in milliseconds of the earthquake
      * @param detailUrl is the URL of the detailed information of the earthquake
      */
-    public Earthquake(String id, double magnitude, double mercalliIntensityScale, String alertLevel, String lat,
-                      String lon, String location, String locationOffset, long timeInMilliseconds, String detailUrl) {
+    public Earthquake(String id, double magnitude, double mercalliIntensityScale, String alertLevel, double lat,
+                      double lon, String location, String locationOffset, long timeInMilliseconds, String detailUrl) {
         this.mId = id;
         this.mMagnitude = magnitude;
         this.mMercalliIntensityScale = mercalliIntensityScale;
@@ -63,6 +61,7 @@ public class Earthquake {
         this.mOffsetLocation = locationOffset;
         this.mTimeInMilliseconds = timeInMilliseconds;
         this.mDetailUrl = detailUrl;
+        this.mAlertLevel = alertLevel;
     }
 
     public String getId() {
@@ -81,11 +80,11 @@ public class Earthquake {
         return mAlertLevel;
     }
 
-    public String getLat() {
+    public double getLat() {
         return mLat;
     }
 
-    public String getLon() {
+    public double getLon() {
         return mLon;
     }
 
