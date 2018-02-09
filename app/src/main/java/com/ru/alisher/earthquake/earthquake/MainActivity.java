@@ -1,16 +1,18 @@
 package com.ru.alisher.earthquake.earthquake;
 
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.Loader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.ru.alisher.earthquake.earthquake.data.Earthquake;
 
@@ -31,12 +33,17 @@ public class MainActivity extends AppCompatActivity
 
     private int mPosition = RecyclerView.NO_POSITION;
 
+    // TextView that is displayed when the list is empty
+    private TextView mEmptyStateTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mEarthquakesRecyclerView = findViewById(R.id.recyclerview_earthquakes);
+
+        mEmptyStateTextView = findViewById(R.id.empty_view);
 
         mLoadingIndicator = findViewById(R.id.loading_indicator);
 
@@ -71,31 +78,11 @@ public class MainActivity extends AppCompatActivity
 
         showLoading();
 
-        getLoaderManager().initLoader(ID_EARTHQUAKE_LOADER, null, this);
-    }
-
-    /**
-     * This method will make the loading indicator visible and hide the earthquakes View
-     * and error message.
-     */
-    private void showLoading() {
-        // First, hide the earthquake data
-        mEarthquakesRecyclerView.setVisibility(View.INVISIBLE);
-
-        // Then, show the loading indicator
-        mLoadingIndicator.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * This method will make the View for the earthquakes data visible and hide the error message
-     * and loading indicator.
-     */
-    private void showEarthquakeDataView() {
-        // First, hide the loading indicator
-        mLoadingIndicator.setVisibility(View.INVISIBLE);
-
-        // Then, make sure the earthquake data is visible
-        mEarthquakesRecyclerView.setVisibility(View.VISIBLE);
+        if (isDeviceConnectedToNetwork()) {
+            getLoaderManager().initLoader(ID_EARTHQUAKE_LOADER, null, this);
+        } else {
+            showEmptyStateView(getString(R.string.no_internet_connection));
+        }
     }
 
     @Override
@@ -113,8 +100,13 @@ public class MainActivity extends AppCompatActivity
     public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
         mEarthquakeAdapter.swapEarthquakes(earthquakes);
         if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+
         mEarthquakesRecyclerView.smoothScrollToPosition(mPosition);
-        if (earthquakes.size() != 0) showEarthquakeDataView();
+        if (earthquakes.size() != 0)
+            showEarthquakeDataView();
+        else
+            showEmptyStateView(getString(R.string.no_earthquakes));
+
     }
 
     @Override
@@ -124,5 +116,58 @@ public class MainActivity extends AppCompatActivity
          * displaying the data.
          */
         mEarthquakeAdapter.swapEarthquakes(null);
+    }
+
+    private boolean isDeviceConnectedToNetwork() {
+        // Get a reference to the ConnectivityManager to check state of network connectivity
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Get details on the currently active default data network
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    /**
+     * This method will make the loading indicator visible and hide the earthquakes View
+     * and error message.
+     */
+    private void showLoading() {
+        // First, hide the earthquake data
+        mEarthquakesRecyclerView.setVisibility(View.INVISIBLE);
+
+        // Hide the emptyStateTextView
+        mEmptyStateTextView.setVisibility(View.INVISIBLE);
+
+        // Then, show the loading indicator
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * This method will make the View for the earthquakes data visible and hide the error message
+     * and loading indicator.
+     */
+    private void showEarthquakeDataView() {
+        // First, hide the loading indicator
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+
+        // Hide the emptyStateTextView
+        mEmptyStateTextView.setVisibility(View.INVISIBLE);
+
+        // Then, make sure the earthquake data is visible
+        mEarthquakesRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmptyStateView(String emptyText) {
+        // First, hide the loading indicator
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+
+        // Hide the earthquake data
+        mEarthquakesRecyclerView.setVisibility(View.INVISIBLE);
+
+        // Show the emptyStateTextView
+        mEmptyStateTextView.setText(emptyText);
+        mEmptyStateTextView.setVisibility(View.VISIBLE);
     }
 }

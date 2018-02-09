@@ -50,12 +50,13 @@ public class EarthquakeLoader extends AsyncTaskLoader<List<Earthquake>> {
                 "5.6", "Kazakhstan, Almaty", "", 243434, "");
         Earthquake earthquake5 = new Earthquake("1", 7.5, 5.5, "green", "1.5",
                 "5.6", "Kazakhstan, Almaty", "", 243434, "");
-
+/*
         earthquakes.add(earthquake1);
         earthquakes.add(earthquake2);
         earthquakes.add(earthquake3);
         earthquakes.add(earthquake4);
         earthquakes.add(earthquake5);
+        */
         return earthquakes;
     }
 }
