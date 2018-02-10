@@ -2,10 +2,13 @@ package com.ru.alisher.earthquake.earthquake;
 
 import android.app.LoaderManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,7 +27,8 @@ import com.ru.alisher.earthquake.earthquake.helper.Helper;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<List<Earthquake>> {
+        implements LoaderManager.LoaderCallbacks<List<Earthquake>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = MainActivity.class.getName();
     private static final String USGS_URL_API_RESOURCE_KEY = "usgs_api_url";
@@ -46,6 +50,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         Log.v(LOG_TAG, "onCreate");
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         mEarthquakesRecyclerView = findViewById(R.id.recyclerview_earthquakes);
 
@@ -100,19 +107,21 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_reload) {
-            showLoading();
+            refreshEarthquakeData();
 
-            // Scrolling up
-            mEarthquakesRecyclerView.scrollToPosition(0);
-
-            if (isDeviceConnectedToNetwork()) {
-                getLoaderManager().restartLoader(ID_EARTHQUAKE_LOADER, null, this);
-            } else {
-                showEmptyStateView(getString(R.string.no_internet_connection));
-            }
+            return true;
+        } else if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
             return true;
         }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        refreshEarthquakeData();
     }
 
     @Override
@@ -122,13 +131,28 @@ public class MainActivity extends AppCompatActivity
             case ID_EARTHQUAKE_LOADER:
                 String usgsApiUrl = Helper.getConfigValue(this, USGS_URL_API_RESOURCE_KEY);
 
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String minMagnitude = sharedPrefs.getString(
+                        getString(R.string.settings_min_magnitude_key),
+                        getString(R.string.settings_min_magnitude_default));
+
+                String orderBy = sharedPrefs.getString(
+                        getString(R.string.settings_order_by_key),
+                        getString(R.string.settings_order_by_default)
+                );
+
+                String limitOfEarthquakes = sharedPrefs.getString(
+                        getString(R.string.settings_limit_of_earthquakes_key),
+                        getString(R.string.settings_limit_of_earthquakes_default)
+                );
+
                 Uri baseUri = Uri.parse(usgsApiUrl);
                 Uri.Builder uriBuilder = baseUri.buildUpon();
 
                 uriBuilder.appendQueryParameter("format", "geojson");
-                uriBuilder.appendQueryParameter("limit", "1000");
-                uriBuilder.appendQueryParameter("minmag", "1");
-                uriBuilder.appendQueryParameter("orderby", "magnitude");
+                uriBuilder.appendQueryParameter("limit", limitOfEarthquakes);
+                uriBuilder.appendQueryParameter("minmag", minMagnitude);
+                uriBuilder.appendQueryParameter("orderby", orderBy);
 
                 return new EarthquakeLoader(this, uriBuilder.toString());
             default:
@@ -208,5 +232,18 @@ public class MainActivity extends AppCompatActivity
         // Show the emptyStateTextView
         mEmptyStateTextView.setText(emptyText);
         mEmptyStateTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void refreshEarthquakeData() {
+        showLoading();
+
+        // Scrolling up
+        mEarthquakesRecyclerView.scrollToPosition(0);
+
+        if (isDeviceConnectedToNetwork()) {
+            getLoaderManager().restartLoader(ID_EARTHQUAKE_LOADER, null, this);
+        } else {
+            showEmptyStateView(getString(R.string.no_internet_connection));
+        }
     }
 }

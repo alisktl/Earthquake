@@ -37,17 +37,16 @@ public class Earthquake {
     private String mDetailUrl;
 
     /**
-     *
-     * @param id is the id of the earthquake
-     * @param magnitude is the magnitude of the earthquake
+     * @param id                     is the id of the earthquake
+     * @param magnitude              is the magnitude of the earthquake
      * @param mercalliIntensityScale is the Mercalli Intensity Scale of the earthquake
-     * @param alertLevel is the alert level of the earthquake
-     * @param lat is the latitude of the earthquake
-     * @param lon is the longitude of the earthquake
-     * @param location is the location of the earthquake
-     * @param locationOffset is the location offset of the earthquake
-     * @param timeInMilliseconds is the time in milliseconds of the earthquake
-     * @param detailUrl is the URL of the detailed information of the earthquake
+     * @param alertLevel             is the alert level of the earthquake
+     * @param lat                    is the latitude of the earthquake
+     * @param lon                    is the longitude of the earthquake
+     * @param location               is the location of the earthquake
+     * @param locationOffset         is the location offset of the earthquake
+     * @param timeInMilliseconds     is the time in milliseconds of the earthquake
+     * @param detailUrl              is the URL of the detailed information of the earthquake
      */
     public Earthquake(String id, double magnitude, double mercalliIntensityScale, String alertLevel, double lat,
                       double lon, String location, String locationOffset, long timeInMilliseconds, String detailUrl) {
