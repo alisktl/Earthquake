@@ -91,7 +91,7 @@ public class Earthquake {
         return mLocation;
     }
 
-    public String getLocationOffset() {
+    public String getOffsetLocation() {
         return mOffsetLocation;
     }
 

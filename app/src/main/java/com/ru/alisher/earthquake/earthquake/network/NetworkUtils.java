@@ -29,9 +29,23 @@ import java.util.List;
 public class NetworkUtils {
 
     private static final String LOG_TAG = NetworkUtils.class.getName();
-    private static final String LOCATION_SEPARATOR = " of ";
+    public static final String LOCATION_SEPARATOR = " of ";
 
     private NetworkUtils() {
+    }
+
+    private class AlertLevelColors {
+        private static final String GREEN = "green";
+        private static final String YELLOW = "yellow";
+        private static final String ORANGE = "orange";
+        private static final String RED = "red";
+    }
+
+    private class AlertLevel {
+        private static final String WEAK = "Weak";
+        private static final String MODERATE = "Moderate";
+        private static final String STRONG = "Strong";
+        private static final String EXTREME = "Extreme";
     }
 
     /**
@@ -176,7 +190,7 @@ public class NetworkUtils {
                 String id = currentEarthquake.getString("id");
                 double magnitude = (!properties.isNull("mag") ? properties.getDouble("mag") : 0);
                 double mercalliIntensityScale = (!properties.isNull("mmi") ? properties.getDouble("mmi") : 0);
-                String alertLevel = (!properties.isNull("alert") ? properties.getString("alert") : "");
+                String alertLevel = getAlertLevel((!properties.isNull("alert") ? properties.getString("alert") : ""));
                 double lat = coordinates.getDouble(1);
                 double lon = coordinates.getDouble(0);
                 long timeInMilliseconds = properties.getLong("time");
@@ -225,5 +239,20 @@ public class NetworkUtils {
 
         // Return the list of earthquakes
         return earthquakes;
+    }
+
+    private static String getAlertLevel(String alertLevelColor) {
+        switch (alertLevelColor) {
+            case AlertLevelColors.GREEN:
+                return AlertLevel.WEAK;
+            case AlertLevelColors.YELLOW:
+                return AlertLevel.MODERATE;
+            case AlertLevelColors.ORANGE:
+                return AlertLevel.STRONG;
+            case AlertLevelColors.RED:
+                return AlertLevel.EXTREME;
+            default:
+                return alertLevelColor;
+        }
     }
 }

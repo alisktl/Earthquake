@@ -29,13 +29,23 @@ public class EarthquakeAdapter extends RecyclerView.Adapter<EarthquakeAdapter.Ea
 
     private List<Earthquake> earthquakes;
 
+    final private EarthquakeAdapterOnClickHandler mClickHandler;
+
+    /**
+     * The interface that receives onClick messages.
+     */
+    public interface EarthquakeAdapterOnClickHandler {
+        void onClick(Earthquake earthquake);
+    }
+
     /**
      * Creates a EarthquakeAdapter.
      *
      * @param context Used to talk to the UI and app resources
      */
-    EarthquakeAdapter(@NonNull Context context) {
+    EarthquakeAdapter(@NonNull Context context, EarthquakeAdapterOnClickHandler clickHandler) {
         mContext = context;
+        mClickHandler = clickHandler;
     }
 
     @Override
@@ -65,7 +75,7 @@ public class EarthquakeAdapter extends RecyclerView.Adapter<EarthquakeAdapter.Ea
         Date dateObject = new Date(earthquakeToShow.getTimeInMilliseconds());
 
         earthquakeAdapterViewHolder.magnitude.setText(formatMagnitude(earthquakeToShow.getMagnitude()));
-        earthquakeAdapterViewHolder.time.setText(Helper.formatTime(dateObject) + ", " + Helper.formatDate(dateObject));
+        earthquakeAdapterViewHolder.time.setText((Helper.formatDate(dateObject) + ", " + Helper.formatTime(dateObject)));
         earthquakeAdapterViewHolder.location.setText(earthquakeToShow.getLocation());
     }
 
@@ -125,7 +135,8 @@ public class EarthquakeAdapter extends RecyclerView.Adapter<EarthquakeAdapter.Ea
 
         @Override
         public void onClick(View view) {
-            Toast.makeText(mContext, "Clicked", Toast.LENGTH_SHORT).show();
+            int adapterPosition = getAdapterPosition();
+            mClickHandler.onClick(earthquakes.get(adapterPosition));
         }
     }
 }

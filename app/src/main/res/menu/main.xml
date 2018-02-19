@@ -7,14 +7,14 @@
 
     <item
         android:id="@+id/action_reload"
-        android:icon="@drawable/ic_refresh_white"
+        android:icon="@drawable/ic_refresh_white_24dp"
         android:orderInCategory="1"
         android:title="@string/action_reload"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings_applications_white"
+        android:icon="@drawable/ic_settings_applications_white_24dp"
         android:orderInCategory="2"
         android:title="@string/settings_title"
         app:showAsAction="ifRoom" />

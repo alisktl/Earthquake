@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ru.alisher.earthquake.earthquake.data.Earthquake;
 import com.ru.alisher.earthquake.earthquake.helper.Helper;
@@ -28,7 +29,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<List<Earthquake>>,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        EarthquakeAdapter.EarthquakeAdapterOnClickHandler {
 
     private static final String LOG_TAG = MainActivity.class.getName();
     private static final String USGS_URL_API_RESOURCE_KEY = "usgs_api_url";
@@ -49,7 +51,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.v(LOG_TAG, "onCreate");
+        try {
+            getSupportActionBar().setTitle(R.string.label_recent_earthquakes);
+        }
+        catch (Exception e) {
+        }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -85,7 +91,7 @@ public class MainActivity extends AppCompatActivity
          */
         mEarthquakesRecyclerView.setHasFixedSize(true);
 
-        mEarthquakeAdapter = new EarthquakeAdapter(this);
+        mEarthquakeAdapter = new EarthquakeAdapter(this, this);
         mEarthquakesRecyclerView.setAdapter(mEarthquakeAdapter);
 
         showLoading();
@@ -245,5 +251,20 @@ public class MainActivity extends AppCompatActivity
         } else {
             showEmptyStateView(getString(R.string.no_internet_connection));
         }
+    }
+
+    @Override
+    public void onClick(Earthquake earthquake) {
+        Intent intent = new Intent(this, EarthquakeDetailActivity.class);
+        intent.putExtra(EarthquakeDetailActivity.MAGNITUDE_EXTRA_KEY, earthquake.getMagnitude());
+        intent.putExtra(EarthquakeDetailActivity.LOCATION_EXTRA_KEY, earthquake.getLocation());
+        intent.putExtra(EarthquakeDetailActivity.OFFSET_LOCATION_EXTRA_KEY, earthquake.getOffsetLocation());
+        intent.putExtra(EarthquakeDetailActivity.LAT_EXTRA_KEY, earthquake.getLat());
+        intent.putExtra(EarthquakeDetailActivity.LON_EXTRA_KEY, earthquake.getLon());
+        intent.putExtra(EarthquakeDetailActivity.TIME_EXTRA_KEY, earthquake.getTimeInMilliseconds());
+        intent.putExtra(EarthquakeDetailActivity.MERCALLI_SCALE_EXTRA_KEY, earthquake.getMercalliIntensityScale());
+        intent.putExtra(EarthquakeDetailActivity.ALERT_LEVEL_EXTRA_KEY, earthquake.getAlertLevel());
+
+        startActivity(intent);
     }
 }

@@ -16,7 +16,8 @@
 
     <EditTextPreference
         android:defaultValue="@string/settings_limit_of_earthquakes_default"
-        android:inputType="numberDecimal"
+        android:inputType="numberSigned"
+        android:digits="0123456789"
         android:key="@string/settings_limit_of_earthquakes_key"
         android:selectAllOnFocus="true"
         android:title="@string/settings_limit_of_earthquakes_on_screen_label" />

@@ -7,6 +7,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 /**
@@ -16,6 +17,8 @@ import android.view.MenuItem;
 public class SettingsActivity extends AppCompatActivity {
 
     private static String LOG_TAG = SettingsActivity.class.getName();
+
+    private static int LIMIT_ON_THE_SCREEN_POSITION = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (preference instanceof ListPreference) {
                 ListPreference listPreference = (ListPreference) preference;
                 int prefIndex = listPreference.findIndexOfValue(stringValue);
+
                 if (prefIndex >= 0) {
                     CharSequence[] labels = listPreference.getEntries();
                     preference.setSummary(labels[prefIndex]);
@@ -74,6 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(preference.getContext());
             String preferenceString = preferences.getString(preference.getKey(), "");
+
             onPreferenceChange(preference, preferenceString);
         }
     }

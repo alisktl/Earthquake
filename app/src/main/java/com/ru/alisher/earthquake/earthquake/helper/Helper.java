@@ -6,6 +6,8 @@ package com.ru.alisher.earthquake.earthquake.helper;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import com.ru.alisher.earthquake.earthquake.R;
@@ -40,7 +42,7 @@ public final class Helper {
     }
 
     /**
-     * Return the formatted date string (i.e. "Mar 3") from a Date object.
+     * Return the formatted date string (i.e. "Feb 3") from a Date object.
      */
     public static String formatDate(Date dateObject) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("LLL dd");
@@ -48,7 +50,7 @@ public final class Helper {
     }
 
     /**
-     * Return the formatted date string (i.e. "22:30") from a Date object.
+     * Return the formatted date string (i.e. "20:33") from a Date object.
      */
     public static String formatTime(Date dateObject) {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
